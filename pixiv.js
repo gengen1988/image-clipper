@@ -4,29 +4,35 @@ const https = require('https')
 
 const root = 'output'
 
-function getTagCollection() {
-    return getTagList().map(getTagTexts)
-}
-
-function getTagTexts(tagRoot) {
-
-    // standard tag (with localization)
-    var segments = [...tagRoot.getElementsByTagName('span')]
-
-    // original or r-18
-    if (segments.length == 0) {
-        segments = [...tagRoot.getElementsByTagName('a')]
-    }
-
-    return segments.map(tag => tag.textContent)
-}
-
-function getTagList() {
+function selectTags() {
     return [...document.querySelectorAll('figcaption footer li > span')]
 }
 
-function getPresentationImg() {
+function selectImage() {
     return document.querySelector('body > [role=presentation] img')
+}
+
+function selectAuthor() {
+    return document.querySelector('main div[role=img]')
+}
+
+function extractTagCollection() {
+    return selectTags().map(getTagText)
+}
+
+function getAuthorInfo(el) {
+}
+
+function getTagText(el) {
+    // standard tag (with localization)
+    var segments = [...el.getElementsByTagName('span')]
+
+    // original or r-18
+    if (segments.length == 0) {
+        segments = [...el.getElementsByTagName('a')]
+    }
+
+    return segments.map(tag => tag.textContent)
 }
 
 function getImageFileName(img) {
@@ -40,9 +46,10 @@ function getTagFileName(img) {
 // Create a promise for write tag file
 function writeTagFile(img) {
     var tagFileName = getTagFileName(img)
-    var collection = getTagCollection()
-    var text = JSON.stringify(collection, null, 2)
     var filePath = path.join(root, tagFileName)
+
+    var collection = extractTagCollection()
+    var text = JSON.stringify(collection, null, 2)
 
     return new Promise((resolve, reject) => {
         fs.writeFile(filePath, text, err => {
@@ -57,8 +64,8 @@ function writeTagFile(img) {
 
 // Create a promise for downloading the image
 function downloadImage(img) {
-    var imgFileName = getImageFileName(img)
-    var file = fs.createWriteStream(path.join(root, imgFileName))
+    var imageFileName = getImageFileName(img)
+    var file = fs.createWriteStream(path.join(root, imageFileName))
     var options = {
         headers: {
             Referer: 'https://www.pixiv.net/'
@@ -82,7 +89,7 @@ function downloadImage(img) {
 module.exports = {
     copyPixivTags() {
         // name
-        var img = getPresentationImg()
+        var img = selectImage()
 
         // Combine the two promises into a single promise
         return Promise.all([

@@ -1,6 +1,6 @@
 const path = require('path')
 const electron = require('electron')
-const { copyPixivTags } = require('./util')
+const { copyPixivTags } = require('./pixiv')
 
 const app = electron.app
 const Menu = electron.Menu
@@ -8,31 +8,23 @@ const BrowserWindow = electron.BrowserWindow
 
 let mainWindow
 
+const defaultWebPreferences = {
+    preload: path.join(__dirname, 'preload.js'),
+    nodeIntegration: true,
+    webSecurity: false
+}
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1366,
         height: 768,
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            nodeIntegration: true,
-            webSecurity: false
-        }
+        webPreferences: defaultWebPreferences
     })
 
     mainWindow.loadURL('https://www.pixiv.net/')
     mainWindow.on('closed', () => {
         mainWindow = null
     })
-
-    // const secondaryWindow = new BrowserWindow({
-    //     width: 800,
-    //     height: 600
-    // })
-
-    // secondaryWindow.loadURL('file:///index.html')
-    // secondaryWindow.on('closed', function () {
-    //     secondaryWindow = null
-    // })
 }
 
 app.on('ready', createWindow)
@@ -49,24 +41,35 @@ app.on('activate', () => {
     }
 });
 
+app.on('browser-window-created', (evt, window) => {
+    console.log(window)
+    window.webContents.setWindowOpenHandler(({ url }) => {
+        window.loadURL(url)
+        return { action: 'deny' }
+    })
+})
 
 const template = [
     {
         label: 'Reload',
         click() {
-            mainWindow.reload()
+            var window = BrowserWindow.getFocusedWindow();
+            window.reload()
+
         }
     },
     {
         label: 'Copy Pixiv Tags',
         click() {
-            mainWindow.webContents.send('copyPixivTags')
+            var window = BrowserWindow.getFocusedWindow();
+            window.webContents.send('copyPixivTags')
         }
     },
     {
         label: 'Dev Tools',
         click() {
-            mainWindow.webContents.openDevTools()
+            var window = BrowserWindow.getFocusedWindow();
+            window.webContents.toggleDevTools()
         }
     },
 ]
