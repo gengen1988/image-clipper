@@ -41,6 +41,7 @@ app.on('activate', () => {
     }
 });
 
+// always open _blank page in same window. ensure menu has correct context
 app.on('browser-window-created', (evt, window) => {
     console.log(window)
     window.webContents.setWindowOpenHandler(({ url }) => {

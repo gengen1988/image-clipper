@@ -4,6 +4,10 @@ const https = require('https')
 
 const root = 'output'
 
+const alias = {
+    '1893126': 'kazutake hazano'
+}
+
 function selectTags() {
     return [...document.querySelectorAll('figcaption footer li > span')]
 }
@@ -13,14 +17,16 @@ function selectImage() {
 }
 
 function selectAuthor() {
-    return document.querySelector('main div[role=img]')
+    return document.querySelector('main div[role=img]').closest('a')
 }
 
 function extractTagCollection() {
     return selectTags().map(getTagText)
 }
 
-function getAuthorInfo(el) {
+function getAuthorTag(el) {
+    var id = el.getAttribute('data-gtm-value')
+    return alias[id] || id
 }
 
 function getTagText(el) {
@@ -46,8 +52,8 @@ function getTagFileName(img) {
 // Create a promise for write tag file
 function writeTagFile(img) {
     var tagFileName = getTagFileName(img)
-    var filePath = path.join(root, tagFileName)
-
+    var directory = ensureDirectory()
+    var filePath = path.join(directory, tagFileName)
     var collection = extractTagCollection()
     var text = JSON.stringify(collection, null, 2)
 
@@ -62,10 +68,19 @@ function writeTagFile(img) {
     })
 }
 
+function ensureDirectory() {
+    var authorEl = selectAuthor()
+    var authorTag = getAuthorTag(authorEl)
+    var directory = path.join(root, authorTag)
+    fs.mkdirSync(directory, { recursive: true })
+    return directory
+}
+
 // Create a promise for downloading the image
 function downloadImage(img) {
     var imageFileName = getImageFileName(img)
-    var file = fs.createWriteStream(path.join(root, imageFileName))
+    var directory = ensureDirectory()
+    var file = fs.createWriteStream(path.join(directory, imageFileName))
     var options = {
         headers: {
             Referer: 'https://www.pixiv.net/'
