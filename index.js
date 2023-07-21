@@ -1,42 +1,42 @@
 const path = require('path')
 const electron = require('electron')
-const { copyPixivTags } = require('./pixiv')
 
 const app = electron.app
 const Menu = electron.Menu
 const BrowserWindow = electron.BrowserWindow
+const ipcMain = electron.ipcMain
 
-let mainWindow
-
-const defaultWebPreferences = {
-    preload: path.join(__dirname, 'preload.js'),
-    nodeIntegration: true,
-    webSecurity: false
-}
+let managerWindow
 
 function createWindow() {
-    mainWindow = new BrowserWindow({
+    managerWindow = new BrowserWindow({
         width: 1366,
         height: 768,
-        webPreferences: defaultWebPreferences
+        webPreferences: {
+            preload: path.join(__dirname, 'preload-manager.js'),
+            nodeIntegration: true,
+        }
     })
 
-    mainWindow.loadURL('https://www.pixiv.net/')
-    mainWindow.on('closed', () => {
-        mainWindow = null
+    managerWindow.on('closed', () => {
+        managerWindow = null
     })
+
+    managerWindow.loadFile('index.html')
 }
 
 app.on('ready', createWindow)
 
+// darwin
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
 })
 
-app.on('activate', () => {
-    if (mainWindow === null) {
+// darwin
+app.on('activate', evt => {
+    if (managerWindow === null) {
         createWindow()
     }
 })
@@ -46,36 +46,25 @@ app.on('web-contents-created', (evt, webContents) => {
         return {
             action: 'allow',
             overrideBrowserWindowOptions: {
-                webPreferences: defaultWebPreferences
+                webPreferences: {
+                    preload: path.join(__dirname, 'preload-browser.js'),
+                    nodeIntegration: true,
+                    webSecurity: false
+                }
             }
         }
     })
 })
 
-const template = [
-    {
-        label: 'Reload',
-        click() {
-            var window = BrowserWindow.getFocusedWindow();
-            window.reload()
-
-        }
-    },
-    {
-        label: 'Copy Pixiv Tags',
-        click() {
-            var window = BrowserWindow.getFocusedWindow();
-            window.webContents.send('copyPixivTags')
-        }
-    },
-    {
-        label: 'Dev Tools',
-        click() {
-            var window = BrowserWindow.getFocusedWindow();
-            window.webContents.toggleDevTools()
-        }
-    },
-]
-
-const menu = Menu.buildFromTemplate(template)
-Menu.setApplicationMenu(menu)
+ipcMain.on('show-context-menu', evt => {
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Copy Pixiv Tags',
+            click() {
+                var window = BrowserWindow.getFocusedWindow()
+                window.webContents.send('copyPixivTags')
+            }
+        },
+    ])
+    contextMenu.popup()
+})

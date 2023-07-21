@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <h1>img extractor</h1>
+
+    <h2>bookmark</h2>
+    <ul>
+        <li><a href="https://www.pixiv.net/" target="_blank">Pixiv</a></li>
+
+        <!-- Add more hyperlinks here -->
+    </ul>
+
+    <h2>any page</h2>
+    <div>
+        <input type="text">
+        <button id="go">go</button>
+    </div>
+
+    <script>
+        go.onclick = function () {
+            var url = document.querySelector('input[type="text"]').value
+            window.open(url)
+        }
+    </script>
+
+
+
+
+    <!-- <div id="app">
+        {{ message }}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                message: 'Hello Vue!'
+            }
+        })
+    </script> -->
+
+</body>
+
+</html>
