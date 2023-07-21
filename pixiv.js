@@ -4,10 +4,6 @@ const https = require('https')
 
 const root = 'output'
 
-const alias = {
-    '1893126': 'kazutake hazano'
-}
-
 function selectTags() {
     return [...document.querySelectorAll('figcaption footer li > span')]
 }
@@ -17,16 +13,18 @@ function selectImage() {
 }
 
 function selectAuthor() {
-    return document.querySelector('main div[role=img]').closest('a')
+    return document.querySelector('main div[role=img]')
 }
 
 function extractTagCollection() {
     return selectTags().map(getTagText)
 }
 
-function getAuthorTag(el) {
-    var id = el.getAttribute('data-gtm-value')
-    return alias[id] || id
+function getAuthorDirectoryName(el) {
+    var pixivId = el.closest('a').getAttribute('data-gtm-value')
+    var title = el.getAttribute('title')
+    var id = `pixiv_${pixivId}`
+    return `[${id}] ${title}`
 }
 
 function getTagText(el) {
@@ -70,7 +68,7 @@ function writeTagFile(img) {
 
 function ensureDirectory() {
     var authorEl = selectAuthor()
-    var authorTag = getAuthorTag(authorEl)
+    var authorTag = getAuthorDirectoryName(authorEl)
     var directory = path.join(root, authorTag)
     fs.mkdirSync(directory, { recursive: true })
     return directory

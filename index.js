@@ -33,20 +33,22 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
-});
+})
 
 app.on('activate', () => {
     if (mainWindow === null) {
         createWindow()
     }
-});
+})
 
-// always open _blank page in same window. ensure menu has correct context
-app.on('browser-window-created', (evt, window) => {
-    console.log(window)
-    window.webContents.setWindowOpenHandler(({ url }) => {
-        window.loadURL(url)
-        return { action: 'deny' }
+app.on('web-contents-created', (evt, webContents) => {
+    webContents.setWindowOpenHandler(() => {
+        return {
+            action: 'allow',
+            overrideBrowserWindowOptions: {
+                webPreferences: defaultWebPreferences
+            }
+        }
     })
 })
 
