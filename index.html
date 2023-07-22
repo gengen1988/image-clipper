@@ -14,7 +14,7 @@
     <h2>bookmark</h2>
     <ul>
         <li><a href="https://www.pixiv.net/" target="_blank">Pixiv</a></li>
-        <li><a href="https://yande.re/post" target="_blank"></a></li>
+        <li><a href="https://yande.re/post" target="_blank">yande.re</a></li>
     </ul>
 
     <h2>direct link</h2>
@@ -23,10 +23,24 @@
         <button id="go">go</button>
     </div>
 
+    <h2>invalid links</h2>
+    <ul id="api-results"></ul>
+
     <script>
         go.onclick = function () {
             var url = document.querySelector('input[type="text"]').value
             window.open(url)
+        }
+
+        var result = window.electron.getInvalidURLs()
+        for (var i = 0; i < result.length; i++) {
+            var li = document.createElement('li')
+            var a = document.createElement('a')
+            a.href = result[i]
+            a.target = '_blank'
+            a.textContent = result[i]
+            li.appendChild(a)
+            document.getElementById('api-results').appendChild(li)
         }
     </script>
 

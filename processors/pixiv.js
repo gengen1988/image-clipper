@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const https = require('https')
+const util = require('../lib/util')
 
 const OUTPUT_DIRECTORY = 'output'
 
@@ -13,7 +14,7 @@ function selectImage() {
 }
 
 function selectAuthor() {
-    return document.querySelector('main div[role=img]')
+    return document.querySelector('aside div[role=img]')
 }
 
 function extractTagCollection() {
@@ -39,17 +40,9 @@ function getTagText(node) {
     return segments.map(tag => tag.textContent)
 }
 
-function getImageFileName(img) {
-    return img.src.split('/').slice(-1)[0]
-}
-
-function getTagFileName(img) {
-    return getImageFileName(img).split('.')[0] + '.json'
-}
-
 // Create a promise for write tag file
-function writeTagFile(img) {
-    var tagFileName = getTagFileName(img)
+function writeTagFile(href) {
+    var tagFileName = util.getFileName(href, 'json')
     var directory = ensureDirectory()
     var filePath = path.join(directory, tagFileName)
     var collection = extractTagCollection()
@@ -67,16 +60,16 @@ function writeTagFile(img) {
 }
 
 function ensureDirectory() {
-    var authorEl = selectAuthor()
-    var authorTag = getAuthorDirectoryName(authorEl)
-    var directory = path.join(OUTPUT_DIRECTORY, authorTag)
+    var authorNode = selectAuthor()
+    var directoryName = getAuthorDirectoryName(authorNode)
+    var directory = path.join(OUTPUT_DIRECTORY, directoryName)
     fs.mkdirSync(directory, { recursive: true })
     return directory
 }
 
 // Create a promise for downloading the image
-function downloadImage(img) {
-    var imageFileName = getImageFileName(img)
+function downloadImage(href) {
+    var imageFileName = util.getFileName(href)
     var directory = ensureDirectory()
     var file = fs.createWriteStream(path.join(directory, imageFileName))
     var options = {
@@ -86,7 +79,7 @@ function downloadImage(img) {
     }
 
     return new Promise((resolve, reject) => {
-        https.get(img.src, options, response => {
+        https.get(href, options, response => {
             response.pipe(file)
             response.on('end', () => {
                 resolve();
@@ -98,23 +91,42 @@ function downloadImage(img) {
     })
 }
 
+function getHref() {
+    return selectImage().src
+}
+
 function saveImage() {
 
     console.log('received require pixiv')
     // name
-    var img = selectImage()
+    var href = getHref()
 
     // Combine the two promises into a single promise
     return Promise
         .all([
-            downloadImage(img),
-            writeTagFile(img),
+            downloadImage(href),
+            writeTagFile(href),
         ])
         .then(() => alert('success'))
         .catch(alert)
 }
 
+function validate(target) {
+    if (document.documentElement.lang != 'en') {
+        alert('please switch to english to acquire tag')
+        return false
+    }
+
+    if (!selectImage()) {
+        alert('please choose an image')
+        return false
+    }
+
+    return true
+}
+
 module.exports = {
     host: 'www.pixiv.net',
-    saveImage
+    saveImage,
+    validate,
 }
