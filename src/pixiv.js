@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const https = require('https')
 
-const root = 'output'
+const OUTPUT_DIRECTORY = 'output'
 
 function selectTags() {
     return [...document.querySelectorAll('figcaption footer li > span')]
@@ -20,20 +20,20 @@ function extractTagCollection() {
     return selectTags().map(getTagText)
 }
 
-function getAuthorDirectoryName(el) {
-    var pixivId = el.closest('a').getAttribute('data-gtm-value')
-    var title = el.getAttribute('title')
+function getAuthorDirectoryName(node) {
+    var pixivId = node.closest('a').getAttribute('data-gtm-value')
+    var title = node.getAttribute('title')
     var id = `pixiv_${pixivId}`
     return `[${id}] ${title}`
 }
 
-function getTagText(el) {
+function getTagText(node) {
     // standard tag (with localization)
-    var segments = [...el.getElementsByTagName('span')]
+    var segments = [...node.getElementsByTagName('span')]
 
     // original or r-18
     if (segments.length == 0) {
-        segments = [...el.getElementsByTagName('a')]
+        segments = [...node.getElementsByTagName('a')]
     }
 
     return segments.map(tag => tag.textContent)
@@ -69,7 +69,7 @@ function writeTagFile(img) {
 function ensureDirectory() {
     var authorEl = selectAuthor()
     var authorTag = getAuthorDirectoryName(authorEl)
-    var directory = path.join(root, authorTag)
+    var directory = path.join(OUTPUT_DIRECTORY, authorTag)
     fs.mkdirSync(directory, { recursive: true })
     return directory
 }
@@ -98,16 +98,23 @@ function downloadImage(img) {
     })
 }
 
+function saveImage() {
+
+    console.log('received require pixiv')
+    // name
+    var img = selectImage()
+
+    // Combine the two promises into a single promise
+    return Promise
+        .all([
+            downloadImage(img),
+            writeTagFile(img),
+        ])
+        .then(() => alert('success'))
+        .catch(alert)
+}
 
 module.exports = {
-    copyPixivTags() {
-        // name
-        var img = selectImage()
-
-        // Combine the two promises into a single promise
-        return Promise.all([
-            downloadImage(img),
-            writeTagFile(img)
-        ]).then(() => console.log('success')).catch(console.error)
-    }
+    host: 'www.pixiv.net',
+    saveImage
 }

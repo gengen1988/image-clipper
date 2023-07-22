@@ -13,7 +13,7 @@ function createWindow() {
         width: 1366,
         height: 768,
         webPreferences: {
-            preload: path.join(__dirname, 'preload-manager.js'),
+            preload: path.join(__dirname, './lib/preload-manager.js'),
             nodeIntegration: true,
         }
     })
@@ -46,8 +46,9 @@ app.on('web-contents-created', (evt, webContents) => {
         return {
             action: 'allow',
             overrideBrowserWindowOptions: {
+                parent: managerWindow,
                 webPreferences: {
-                    preload: path.join(__dirname, 'preload-browser.js'),
+                    preload: path.join(__dirname, './lib/preload-browser.js'),
                     nodeIntegration: true,
                     webSecurity: false
                 }
@@ -59,10 +60,10 @@ app.on('web-contents-created', (evt, webContents) => {
 ipcMain.on('show-context-menu', evt => {
     const contextMenu = Menu.buildFromTemplate([
         {
-            label: 'Copy Pixiv Tags',
+            label: 'save image',
             click() {
                 var window = BrowserWindow.getFocusedWindow()
-                window.webContents.send('copyPixivTags')
+                window.webContents.send('save-image')
             }
         },
     ])
