@@ -3,7 +3,7 @@ const path = require('path')
 const https = require('https')
 const util = require('../lib/util')
 
-const OUTPUT_DIRECTORY = 'output'
+const OUTPUT_DIR = 'output'
 
 function selectTags() {
     return [...document.querySelectorAll('figcaption footer li > span')]
@@ -62,7 +62,7 @@ function writeTagFile(href) {
 function ensureDirectory() {
     var authorNode = selectAuthor()
     var directoryName = getAuthorDirectoryName(authorNode)
-    var directory = path.join(OUTPUT_DIRECTORY, directoryName)
+    var directory = path.join(OUTPUT_DIR, directoryName)
     fs.mkdirSync(directory, { recursive: true })
     return directory
 }

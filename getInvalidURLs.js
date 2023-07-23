@@ -1,28 +1,12 @@
 const fs = require('fs')
 const path = require('path')
+const util = require('./lib/util')
 
 module.exports = getInvalidURLs
-
-function getAllFiles(dirPath, fileList = []) {
-    const files = fs.readdirSync(dirPath)
-
-    files.forEach((file) => {
-        const filePath = path.join(dirPath, file)
-        const stat = fs.statSync(filePath)
-
-        if (stat.isDirectory()) {
-            getAllFiles(filePath, fileList)
-        } else {
-            fileList.push(filePath)
-        }
-    });
-
-    return fileList
-}
+const SRC_DIR = 'output'
 
 function getInvalidURLs() {
-    const outputDir = 'output'
-    const allFiles = getAllFiles(outputDir)
+    const allFiles = util.getAllFiles(SRC_DIR)
     const jsonFiles = allFiles.filter(file => file.endsWith('.json'))
 
     const invalidFile = jsonFiles.filter(file => {

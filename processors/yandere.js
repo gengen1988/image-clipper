@@ -3,7 +3,7 @@ const path = require('path')
 const https = require('https')
 const util = require('../lib/util')
 
-const OUTPUT_DIRECTORY = 'output'
+const OUTPUT_DIR = 'output'
 
 function selectAuthor() {
     return [...document.querySelectorAll('#tag-sidebar > li.tag-type-artist > a')].slice(-1)[0]
@@ -27,7 +27,7 @@ function getAuthorDirectoryName(node) {
 function ensureDirectory() {
     var authorNode = selectAuthor()
     var directoryName = getAuthorDirectoryName(authorNode)
-    var directory = path.join(OUTPUT_DIRECTORY, directoryName)
+    var directory = path.join(OUTPUT_DIR, directoryName)
     fs.mkdirSync(directory, { recursive: true })
     return directory
 }
