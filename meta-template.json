@@ -1,0 +1,26 @@
+{
+  "processor": "pixiv",
+  "referer": "https://xxx/post/yyy",
+  "date": 1690092485050,
+  "meta": [
+    {
+      "name": "pixiv",
+      "authorId": "",
+      "tags": [
+        {
+          "origin": "",
+          "en": ""
+        }
+      ]
+    },
+    {
+      "name": "yandere",
+      "tags": [
+        {
+          "type": "",
+          "text": ""
+        }
+      ]
+    }
+  ]
+}
