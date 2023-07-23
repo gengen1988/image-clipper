@@ -23,8 +23,8 @@
         <button id="go">go</button>
     </div>
 
-    <h2>invalid links</h2>
-    <ul id="api-results"></ul>
+    <!-- <h2>invalid links</h2>
+        <ul id="api-results"></ul> -->
 
     <script>
         go.onclick = function () {
@@ -32,16 +32,16 @@
             window.open(url)
         }
 
-        var result = window.electron.getInvalidURLs()
-        for (var i = 0; i < result.length; i++) {
-            var li = document.createElement('li')
-            var a = document.createElement('a')
-            a.href = result[i]
-            a.target = '_blank'
-            a.textContent = result[i]
-            li.appendChild(a)
-            document.getElementById('api-results').appendChild(li)
-        }
+        // var result = window.electron.getInvalidURLs()
+        // for (var i = 0; i < result.length; i++) {
+        //     var li = document.createElement('li')
+        //     var a = document.createElement('a')
+        //     a.href = result[i]
+        //     a.target = '_blank'
+        //     a.textContent = result[i]
+        //     li.appendChild(a)
+        //     document.getElementById('api-results').appendChild(li)
+        // }
     </script>
 
 </body>
