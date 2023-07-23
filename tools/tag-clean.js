@@ -1,4 +1,4 @@
-const util = require('./lib/util')
+const util = require('../lib/util')
 const fs = require('fs')
 
 const SRC_DIR = '../next'

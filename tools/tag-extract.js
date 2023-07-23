@@ -1,4 +1,4 @@
-const util = require('./lib/util')
+const util = require('../lib/util')
 const Jimp = require('jimp')
 const fs = require('fs')
 const path = require('path')

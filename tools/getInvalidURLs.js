@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const util = require('./lib/util')
+const util = require('../lib/util')
 
 module.exports = getInvalidURLs
 const SRC_DIR = 'output'
@@ -8,13 +8,17 @@ const SRC_DIR = 'output'
 function getInvalidURLs() {
     const allFiles = util.getAllFiles(SRC_DIR)
     const jsonFiles = allFiles.filter(file => file.endsWith('.json'))
-
     const invalidFile = jsonFiles.filter(file => {
         const content = fs.readFileSync(file, 'utf8')
         const json = JSON.parse(content)
         const isValidJson = json.every(entry => Array.isArray(entry))
         const isValidEntry = !json.every(entry => entry.length == 1)
-        return !isValidJson || !isValidEntry
+
+        const relative = path.relative(file, SRC_DIR)
+        const depth = relative.split(path.sep).length
+        const isValidDepth = depth == 2
+
+        return !isValidDepth || !isValidJson || !isValidEntry
     })
 
     const invalidURLs = invalidFile.map(file => {
@@ -24,4 +28,3 @@ function getInvalidURLs() {
 
     return invalidURLs
 }
-

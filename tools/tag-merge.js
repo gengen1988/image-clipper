@@ -1,4 +1,4 @@
-const util = require('./lib/util')
+const util = require('../lib/util')
 const tagAlias = require('./tag-alias')
 const fs = require('fs')
 

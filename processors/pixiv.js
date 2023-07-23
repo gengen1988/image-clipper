@@ -25,7 +25,8 @@ function getAuthorDirectoryName(node) {
     var pixivId = node.closest('a').getAttribute('data-gtm-value')
     var title = node.getAttribute('title')
     var id = `pixiv_${pixivId}`
-    return `[${id}] ${title}`
+    var directoryName = `[${id}] ${title}`
+    return util.sanitizeFileName(directoryName)
 }
 
 function getTagText(node) {
