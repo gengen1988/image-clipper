@@ -1,12 +1,71 @@
 const util = require('../lib/util')
 const AugmentDOM = require('../lib/augment-dom')
 
+module.exports = {
+    host: 'www.pixiv.net',
+    saveImage,
+    validate,
+    init,
+}
+
 const augmenter = new AugmentDOM()
 augmenter.getElements = selectThumbnails
 augmenter.augment = augmentThumbnail
 
+function init() {
+    augmenter.init()
+}
+
+function validate(target) {
+    if (document.documentElement.lang != 'en') {
+        alert('please switch to english to acquire tag')
+        return false
+    }
+
+    if (!selectImage()) {
+        alert('please choose an image page')
+        return false
+    }
+
+    return true
+}
+
+function saveImage() {
+
+    console.log('received require pixiv')
+
+    // collect information
+    const source = selectImage().src
+    const fileName = util.getFileName(source)
+
+    const downloadOptions = {
+        headers: {
+            Referer: 'https://www.pixiv.net/'
+        }
+    }
+
+    const meta = {
+        name: 'pixiv',
+        authorId: getAuthorId(),
+        tags: getTags(),
+    }
+
+    // write image and meta
+    return Promise
+        .all([
+            util.updatePixivIndexAsync(source),
+            util.downloadImageAsync(source, downloadOptions),
+            util.writeMetaFileAsync(fileName, meta),
+        ])
+        .then(() => {
+            augmenter.refresh()
+            alert('success')
+        })
+        .catch(alert)
+}
+
 function selectThumbnails() {
-    return [...document.querySelectorAll('div[type=illust] > div > a')]
+    return [...document.querySelectorAll('div[type=illust] a')]
 }
 
 function selectTags() {
@@ -45,58 +104,6 @@ function getTags() {
 function getAuthorId() {
     const authorEl = selectAuthor()
     return authorEl.closest('a').getAttribute('data-gtm-value')
-}
-
-function saveImage() {
-
-    console.log('received require pixiv')
-
-    // collect information
-    const source = selectImage().src
-    const fileName = util.getFileName(source)
-
-    const downloadOptions = {
-        headers: {
-            Referer: 'https://www.pixiv.net/'
-        }
-    }
-
-    const meta = {
-        name: 'pixiv',
-        authorId: getAuthorId(),
-        tags: getTags(),
-    }
-
-    // write image and meta
-    return Promise
-        .all([
-            util.updatePixivIndexAsync(source),
-            util.downloadImageAsync(source, downloadOptions),
-            util.writeMetaFileAsync(fileName, meta),
-        ])
-        .then(() => {
-            augmenter.refresh()
-            alert('success')
-        })
-        .catch(alert)
-}
-
-function validate(target) {
-    if (document.documentElement.lang != 'en') {
-        alert('please switch to english to acquire tag')
-        return false
-    }
-
-    if (!selectImage()) {
-        alert('please choose an image')
-        return false
-    }
-
-    return true
-}
-
-function init() {
-    augmenter.init()
 }
 
 function augmentThumbnail(el) {
@@ -139,11 +146,4 @@ function createBadge(el) {
     badge.style.textShadow = '1px 1px 1px black'
 
     el.appendChild(badge)
-}
-
-module.exports = {
-    host: 'www.pixiv.net',
-    saveImage,
-    validate,
-    init,
 }
