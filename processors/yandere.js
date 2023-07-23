@@ -18,8 +18,8 @@ function selectImage() {
         || document.querySelector('.original-file-changed')
 }
 
-function getAuthorDirectoryName(node) {
-    var title = node.textContent
+function getAuthorDirectoryName(el) {
+    var title = el.textContent
     var id = 'yandere'
     return `[${id}] ${title}`
 }
