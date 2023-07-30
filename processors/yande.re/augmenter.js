@@ -10,13 +10,14 @@ augmenter.augment = augmentThumbnail
 module.exports = augmenter
 
 function selectThumbnails() {
-    return [...document.querySelectorAll('div[type=illust] a')]
+    return [...document.querySelectorAll('a.thumb')]
 }
 
 function augmentThumbnail(el) {
-    const imageId = el.getAttribute('data-gtm-value')
-    util.isIndexExistsAsync(imageId, 'pixiv')
-        .then(result => result ? createBadge(el) : null)
+    const href = el.href
+    const id = href.split('/').slice(-1)[0]
+    util.isIndexExistsAsync(id, 'yande.re')
+        .then(exists => exists ? createBadge(el) : null)
 }
 
 function createBadge(el) {
@@ -31,10 +32,8 @@ function createBadge(el) {
     const badge = document.createElement('div')
     badge.class = BADEG_CLASS
 
-    badge.style.position = 'absolute'
-    badge.style.bottom = '0'
-    badge.style.left = '0'
-    badge.style.right = '0'
+    badge.style.position = 'relative'
+    badge.style.bottom = '32px'
     badge.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
     badge.style.height = '32px'
 

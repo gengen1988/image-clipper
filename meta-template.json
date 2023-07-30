@@ -1,11 +1,11 @@
 {
-  "processor": "pixiv",
   "referer": "https://xxx/post/yyy",
-  "date": 1690092485050,
   "meta": [
     {
       "name": "pixiv",
-      "authorId": "",
+      "date": 1690092485050,
+      "artistId": "",
+      "inLibraryPages": [],
       "tags": [
         {
           "origin": "",
@@ -14,7 +14,8 @@
       ]
     },
     {
-      "name": "yandere",
+      "name": "yande.re",
+      "date": 1690092485050,
       "tags": [
         {
           "type": "",

@@ -1,5 +1,4 @@
-const commonUtil = require('../../lib/util')
-const pixivUtil = require('./util')
+const util = require('../../lib/util')
 const augmenter = require('./augmenter')
 
 module.exports = {
@@ -40,20 +39,22 @@ function saveImage() {
         }
     }
 
-    const meta = createMeta()
+    const saveOptions = {
+        subFolder: 'pixiv'
+    }
+
+    const id = getPostId()
 
     // write image and meta
-    return Promise
-        .all([
-            pixivUtil.updatePixivIndexAsync(href),
-            commonUtil.downloadImageAsync(href, downloadOptions),
-            commonUtil.writeMetaFileAsync(href, meta),
-        ])
+    return createMeta(id)
+        .then(meta => Promise.all([
+            util.downloadImageAsync(href, downloadOptions, saveOptions),
+            util.writeMetaAsync(id, meta, 'pixiv'),
+        ]))
         .then(() => {
             augmenter.refresh()
             alert('success')
         })
-        .catch(alert)
 }
 
 function selectTags() {
@@ -94,10 +95,35 @@ function getArtistId() {
     return artistEl.closest('a').getAttribute('data-gtm-value')
 }
 
-function createMeta() {
+function getCurrentPage() {
+    const img = selectImage()
+    const fileName = util.getFileName(img.src)
+    const name = fileName.split('.')[0]
+    const page = name.split('_')[1]
+    return page
+}
+
+function getPostId() {
+    const href = window.location.href
+    return href.split('/').slice(-1)[0]
+}
+
+async function createMeta(id) {
+    var pageSet
+    try {
+        const existMeta = await util.readMetaAsync(id, 'pixiv')
+        const previousPages = existMeta.pages
+        pageSet = new Set(previousPages)
+    }
+    catch {
+        pageSet = new Set()
+    }
+
+    pageSet.add(getCurrentPage())
+
     return {
-        name: 'pixiv',
         artistId: getArtistId(),
+        pages: [...pageSet],
         tags: getTags(),
     }
 }
